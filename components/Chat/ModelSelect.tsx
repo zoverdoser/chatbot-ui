@@ -11,10 +11,22 @@ export const ModelSelect = () => {
   const { t } = useTranslation('chat');
 
   const {
-    state: { selectedConversation, models, defaultModelId },
+    state: { selectedConversation, models },
     handleUpdateConversation,
     dispatch: homeDispatch,
   } = useContext(HomeContext);
+
+  // select first option by default
+  if (
+    selectedConversation &&
+    !selectedConversation.model &&
+    models.length > 0
+  ) {
+    handleUpdateConversation(selectedConversation, {
+      key: 'model',
+      value: models[0],
+    });
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     selectedConversation &&
@@ -35,7 +47,7 @@ export const ModelSelect = () => {
         <select
           className="w-full bg-transparent p-2"
           placeholder={t('Select a model') || ''}
-          value={selectedConversation?.model?.id || defaultModelId}
+          value={selectedConversation?.model?.id}
           onChange={handleChange}
         >
           {models.map((model) => (
@@ -44,9 +56,7 @@ export const ModelSelect = () => {
               value={model.id}
               className="dark:bg-[#343541] dark:text-white"
             >
-              {model.id === defaultModelId
-                ? `Default (${model.name})`
-                : model.name}
+              {model.name}
             </option>
           ))}
         </select>

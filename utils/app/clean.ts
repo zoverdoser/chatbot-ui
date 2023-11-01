@@ -1,5 +1,4 @@
 import { Conversation } from '@/types/chat';
-import { OpenAIModelID, OpenAIModels } from '@/types/openai';
 
 import { DEFAULT_SYSTEM_PROMPT, DEFAULT_TEMPERATURE } from './const';
 
@@ -16,7 +15,7 @@ export const cleanSelectedConversation = (conversation: Conversation) => {
   if (!updatedConversation.model) {
     updatedConversation = {
       ...updatedConversation,
-      model: updatedConversation.model || OpenAIModels[OpenAIModelID.GPT_3_5],
+      model: updatedConversation.model,
     };
   }
 
@@ -66,10 +65,6 @@ export const cleanConversationHistory = (history: any[]): Conversation[] => {
 
   return history.reduce((acc: any[], conversation) => {
     try {
-      if (!conversation.model) {
-        conversation.model = OpenAIModels[OpenAIModelID.GPT_3_5];
-      }
-
       if (!conversation.prompt) {
         conversation.prompt = DEFAULT_SYSTEM_PROMPT;
       }

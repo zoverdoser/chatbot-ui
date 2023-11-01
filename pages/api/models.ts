@@ -1,6 +1,6 @@
 import { OPENAI_API_HOST, OPENAI_API_TYPE, OPENAI_API_VERSION, OPENAI_ORGANIZATION } from '@/utils/app/const';
 
-import { OpenAIModel, OpenAIModelID, OpenAIModels } from '@/types/openai';
+import { OpenAIModel } from '@/types/openai';
 
 export const config = {
   runtime: 'edge',
@@ -51,14 +51,10 @@ const handler = async (req: Request): Promise<Response> => {
     const models: OpenAIModel[] = json.data
       .map((model: any) => {
         const model_name = (OPENAI_API_TYPE === 'azure') ? model.model : model.id;
-        for (const [key, value] of Object.entries(OpenAIModelID)) {
-          if (value === model_name) {
-            return {
-              id: model.id,
-              name: OpenAIModels[value].name,
-            };
-          }
-        }
+        return {
+          id: model.id,
+          name: model_name,
+        };
       })
       .filter(Boolean);
 

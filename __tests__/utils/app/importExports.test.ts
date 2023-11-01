@@ -9,7 +9,6 @@ import {
 } from '@/utils/app/importExport';
 
 import { ExportFormatV1, ExportFormatV2, ExportFormatV4 } from '@/types/export';
-import { OpenAIModelID, OpenAIModels } from '@/types/openai';
 
 import { describe, expect, it } from 'vitest';
 
@@ -100,7 +99,7 @@ describe('cleanData Functions', () => {
                 content: 'Hi',
               },
             ],
-            model: OpenAIModels[OpenAIModelID.GPT_3_5],
+            model: null,
             prompt: DEFAULT_SYSTEM_PROMPT,
             temperature: DEFAULT_TEMPERATURE,
             folderId: null,
@@ -156,7 +155,7 @@ describe('cleanData Functions', () => {
                 content: 'Hi',
               },
             ],
-            model: OpenAIModels[OpenAIModelID.GPT_3_5],
+            model: null,
             prompt: DEFAULT_SYSTEM_PROMPT,
             temperature: DEFAULT_TEMPERATURE,
             folderId: null,
@@ -192,7 +191,7 @@ describe('cleanData Functions', () => {
                 content: 'Hi',
               },
             ],
-            model: OpenAIModels[OpenAIModelID.GPT_3_5],
+            model: null,
             prompt: DEFAULT_SYSTEM_PROMPT,
             temperature: DEFAULT_TEMPERATURE,
             folderId: null,
@@ -211,7 +210,7 @@ describe('cleanData Functions', () => {
             name: 'prompt 1',
             description: '',
             content: '',
-            model: OpenAIModels[OpenAIModelID.GPT_3_5],
+            model: null,
             folderId: null,
           },
         ],
@@ -235,7 +234,7 @@ describe('cleanData Functions', () => {
                 content: 'Hi',
               },
             ],
-            model: OpenAIModels[OpenAIModelID.GPT_3_5],
+            model: null,
             prompt: DEFAULT_SYSTEM_PROMPT,
             temperature: DEFAULT_TEMPERATURE,
             folderId: null,
@@ -254,7 +253,7 @@ describe('cleanData Functions', () => {
             name: 'prompt 1',
             description: '',
             content: '',
-            model: OpenAIModels[OpenAIModelID.GPT_3_5],
+            model: null,
             folderId: null,
           },
         ],
