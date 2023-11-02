@@ -24,6 +24,10 @@ const handler = async (req: Request): Promise<Response> => {
     if (temperatureToUse == null) {
       temperatureToUse = DEFAULT_TEMPERATURE;
     }
+    if (model == null) {
+      throw new Error('No model specified');
+    }
+    
     const stream = await OpenAIStream(model, promptToSend, temperatureToUse, key, messages);
 
     return new Response(stream);
