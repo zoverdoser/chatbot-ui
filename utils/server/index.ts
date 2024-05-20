@@ -57,7 +57,7 @@ export const OpenAIStream = async (
         },
         ...messages,
       ],
-      max_tokens: 1000,
+      max_tokens: 2048,
       temperature: temperature,
       stream: true,
     }),
@@ -89,16 +89,27 @@ export const OpenAIStream = async (
       const onParse = (event: ParsedEvent | ReconnectInterval) => {
         if (event.type === 'event') {
           const data = event.data;
+          if (data === '[DONE]') {
+            return;
+          }
 
           try {
             const json = JSON.parse(data);
-            if (json.choices[0].finish_reason != null) {
+            const { choices } = json;
+            if (!choices || choices.length === 0) {
+              return;
+            }
+
+            const text = choices[0].delta.content;
+            if (text && text.length > 0) {
+              const queue = encoder.encode(text);
+              controller.enqueue(queue);
+            }
+            
+            if (choices[0].finish_reason != null) {
               controller.close();
               return;
             }
-            const text = json.choices[0].delta.content;
-            const queue = encoder.encode(text);
-            controller.enqueue(queue);
           } catch (e) {
             controller.error(e);
           }
