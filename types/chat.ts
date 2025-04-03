@@ -3,6 +3,7 @@ import { OpenAIModel } from './openai';
 export interface Message {
   role: Role;
   content: string;
+  tokens?: number;
 }
 
 export type Role = 'assistant' | 'user';
@@ -13,6 +14,7 @@ export interface ChatBody {
   key: string;
   prompt: string;
   temperature: number;
+  maxTokens: number;
 }
 
 export interface Conversation {
@@ -23,4 +25,5 @@ export interface Conversation {
   prompt: string;
   temperature: number;
   folderId: string | null;
+  maxTokens: number;
 }

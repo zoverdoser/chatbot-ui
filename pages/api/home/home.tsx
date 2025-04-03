@@ -15,7 +15,11 @@ import {
   cleanConversationHistory,
   cleanSelectedConversation,
 } from '@/utils/app/clean';
-import { DEFAULT_SYSTEM_PROMPT, DEFAULT_TEMPERATURE } from '@/utils/app/const';
+import {
+  DEFAULT_SYSTEM_PROMPT,
+  DEFAULT_TEMPERATURE,
+  MAX_TOKENS_RANGE,
+} from '@/utils/app/const';
 import {
   saveConversation,
   saveConversations,
@@ -45,10 +49,7 @@ interface Props {
   serverSidePluginKeysSet: boolean;
 }
 
-const Home = ({
-  serverSideApiKeyIsSet,
-  serverSidePluginKeysSet,
-}: Props) => {
+const Home = ({ serverSideApiKeyIsSet, serverSidePluginKeysSet }: Props) => {
   const { t } = useTranslation('chat');
   const { getModels } = useApiService();
   const { getModelsError } = useErrorService();
@@ -186,6 +187,7 @@ const Home = ({
       prompt: DEFAULT_SYSTEM_PROMPT,
       temperature: lastConversation?.temperature ?? DEFAULT_TEMPERATURE,
       folderId: null,
+      maxTokens: lastConversation?.maxTokens ?? MAX_TOKENS_RANGE.DEFAULT,
     };
 
     const updatedConversations = [...conversations, newConversation];
@@ -330,11 +332,7 @@ const Home = ({
         },
       });
     }
-  }, [
-    dispatch,
-    serverSideApiKeyIsSet,
-    serverSidePluginKeysSet,
-  ]);
+  }, [dispatch, serverSideApiKeyIsSet, serverSidePluginKeysSet]);
 
   return (
     <HomeContext.Provider

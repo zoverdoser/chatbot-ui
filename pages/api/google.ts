@@ -1,6 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-import { OPENAI_API_HOST } from '@/utils/app/const';
+import {
+  DEFAULT_TEMPERATURE,
+  MAX_TOKENS_RANGE,
+  OPENAI_API_HOST,
+} from '@/utils/app/const';
 import { cleanSourceText } from '@/utils/server/google';
 
 import { Message } from '@/types/chat';
@@ -12,8 +16,15 @@ import jsdom, { JSDOM } from 'jsdom';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   try {
-    const { messages, key, model, googleAPIKey, googleCSEId } =
-      req.body as GoogleBody;
+    const {
+      messages,
+      key,
+      model,
+      googleAPIKey,
+      googleCSEId,
+      temperature,
+      maxTokens,
+    } = req.body as GoogleBody;
 
     const userMessage = messages[messages.length - 1];
     const query = encodeURIComponent(userMessage.content.trim());
@@ -130,8 +141,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<any>) => {
           },
           answerMessage,
         ],
-        max_tokens: 1000,
-        temperature: 1,
+        max_tokens: maxTokens || MAX_TOKENS_RANGE.DEFAULT,
+        temperature: temperature || DEFAULT_TEMPERATURE,
         stream: false,
       }),
     });
@@ -142,7 +153,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<any>) => {
     res.status(200).json({ answer });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error'})
+    res.status(500).json({ error: 'Error' });
   }
 };
 
