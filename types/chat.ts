@@ -24,3 +24,8 @@ export interface Conversation {
   temperature: number;
   folderId: string | null;
 }
+
+export interface Performance {
+  ttft: number;
+  tps: number;
+}

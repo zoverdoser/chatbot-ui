@@ -18,9 +18,10 @@ import {
   saveConversations,
   updateConversation,
 } from '@/utils/app/conversation';
+import { estimateTokensFromMessages } from '@/utils/app/token';
 import { throttle } from '@/utils/data/throttle';
 
-import { ChatBody, Conversation, Message } from '@/types/chat';
+import { ChatBody, Conversation, Message, Performance } from '@/types/chat';
 import { Plugin } from '@/types/plugin';
 
 import HomeContext from '@/pages/api/home/home.context';
@@ -29,10 +30,10 @@ import Spinner from '../Spinner';
 import { ChatInput } from './ChatInput';
 import { ChatLoader } from './ChatLoader';
 import { ErrorMessageDiv } from './ErrorMessageDiv';
+import { MemoizedChatMessage } from './MemoizedChatMessage';
 import { ModelSelect } from './ModelSelect';
 import { SystemPrompt } from './SystemPrompt';
 import { TemperatureSlider } from './Temperature';
-import { MemoizedChatMessage } from './MemoizedChatMessage';
 
 interface Props {
   stopConversationRef: MutableRefObject<boolean>;
@@ -63,6 +64,10 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showScrollDownButton, setShowScrollDownButton] =
     useState<boolean>(false);
+  const [performanceState, setPerformanceState] = useState<Performance>({
+    ttft: 0,
+    tps: 0,
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -116,6 +121,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
           });
         }
         const controller = new AbortController();
+        const fetchStartTimestamp = performance.now();
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
@@ -164,6 +170,10 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
             text += chunkValue;
             if (isFirst) {
               isFirst = false;
+              setPerformanceState((prevState) => ({
+                ...prevState,
+                ttft: performance.now() - fetchStartTimestamp,
+              }));
               const updatedMessages: Message[] = [
                 ...updatedConversation.messages,
                 { role: 'assistant', content: chunkValue },
@@ -243,6 +253,14 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
           homeDispatch({ field: 'loading', value: false });
           homeDispatch({ field: 'messageIsStreaming', value: false });
         }
+        const resMsg =
+          updatedConversation.messages[updatedConversation.messages.length - 1];
+        const tokenCount = estimateTokensFromMessages([resMsg]);
+        const totalTime = (performance.now() - fetchStartTimestamp) / 1000;
+        setPerformanceState((prevState) => ({
+          ...prevState,
+          tps: tokenCount / totalTime,
+        }));
       }
     },
     [
@@ -440,8 +458,14 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
             ) : (
               <>
                 <div className="sticky top-0 z-10 flex justify-center border border-b-neutral-300 bg-neutral-100 py-2 text-sm text-neutral-500 dark:border-none dark:bg-[#444654] dark:text-neutral-200">
-                  {t('Model')}: {selectedConversation?.model?.name} | {t('Temp')}
-                  : {selectedConversation?.temperature} |
+                  {t('Model')}: {selectedConversation?.model?.name} |{' '}
+                  {t('Temp')}: {selectedConversation?.temperature} |
+                  {performanceState.ttft !== 0 && (
+                    <> TTFT: {performanceState.ttft.toFixed(2)}ms | </>
+                  )}
+                  {performanceState.tps !== 0 && (
+                    <>TPS: {performanceState.tps.toFixed(2) || ''}</>
+                  )}
                   <button
                     className="ml-2 cursor-pointer hover:opacity-50"
                     onClick={handleSettings}
